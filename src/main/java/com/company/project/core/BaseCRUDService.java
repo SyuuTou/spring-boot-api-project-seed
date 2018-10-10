@@ -7,21 +7,29 @@ import tk.mybatis.mapper.entity.Condition;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.List;
 
 /**
  * 基于通用MyBatis Mapper插件的Service接口的实现
  */
-public abstract class AbstractService<T> implements Service<T> {
+public abstract class BaseCRUDService<T> implements Service<T> {
 
     @Autowired
-    protected Mapper<T> mapper;
+    protected OwnerMapper<T> mapper;
 
     private Class<T> modelClass;    // 当前泛型真实类型的Class
 
-    public AbstractService() {
-        ParameterizedType pt = (ParameterizedType) this.getClass().getGenericSuperclass();
-        modelClass = (Class<T>) pt.getActualTypeArguments()[0];
+    public BaseCRUDService() {
+
+        try {
+            Type type = this.getClass().getGenericSuperclass();
+            if (type instanceof ParameterizedType) {
+                this.modelClass = (Class<T>) ((ParameterizedType) type).getActualTypeArguments()[0];
+            }
+        } catch (RuntimeException var2) {
+            var2.printStackTrace();
+        }
     }
 
     public void save(T model) {
@@ -49,7 +57,7 @@ public abstract class AbstractService<T> implements Service<T> {
     }
 
     @Override
-    public T findBy(String fieldName, Object value) throws TooManyResultsException {
+    public T findOneBy(String fieldName, Object value) throws TooManyResultsException {
         try {
             T model = modelClass.newInstance();
             Field field = modelClass.getDeclaredField(fieldName);
