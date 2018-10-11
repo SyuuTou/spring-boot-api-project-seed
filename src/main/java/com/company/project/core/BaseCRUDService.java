@@ -31,33 +31,33 @@ public abstract class BaseCRUDService<T> implements Service<T> {
             var2.printStackTrace();
         }
     }
-
+    @Override
     public void save(T model) {
         mapper.insertSelective(model);
     }
-
+    @Override
     public void save(List<T> models) {
         mapper.insertList(models);
     }
-
+    @Override
     public void deleteById(Integer id) {
         mapper.deleteByPrimaryKey(id);
     }
-
+    @Override
     public void deleteByIds(String ids) {
         mapper.deleteByIds(ids);
     }
-
+    @Override
     public void update(T model) {
         mapper.updateByPrimaryKeySelective(model);
     }
-
+    @Override
     public T findById(Integer id) {
         return mapper.selectByPrimaryKey(id);
     }
 
     @Override
-    public T findOneBy(String fieldName, Object value) throws TooManyResultsException {
+    public T findOneByFiledName(String fieldName, Object value) throws TooManyResultsException {
         try {
             T model = modelClass.newInstance();
             Field field = modelClass.getDeclaredField(fieldName);
@@ -68,15 +68,15 @@ public abstract class BaseCRUDService<T> implements Service<T> {
             throw new ServiceException(e.getMessage(), e);
         }
     }
-
+    @Override
     public List<T> findByIds(String ids) {
         return mapper.selectByIds(ids);
     }
-
+    @Override
     public List<T> findByCondition(Condition condition) {
         return mapper.selectByCondition(condition);
     }
-
+    @Override
     public List<T> findAll() {
         return mapper.selectAll();
     }

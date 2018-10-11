@@ -19,6 +19,7 @@ import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 import com.company.project.core.Result;
 import com.company.project.core.ResultCode;
 import com.company.project.core.ServiceException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -38,6 +39,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
  * Spring MVC 配置
  */
 @Configuration
+@Slf4j
 //public class WebMvcConfigurer extends WebMvcConfigurerAdapter {
 public class WebMvcConfigurer extends WebMvcConfigurationSupport {
 
@@ -60,7 +62,7 @@ public class WebMvcConfigurer extends WebMvcConfigurationSupport {
         converter.setSupportedMediaTypes(Arrays.asList(MediaType.APPLICATION_JSON_UTF8));
         converters.add(converter);
     }
-    
+
     @Override
     //取消对swagger的拦截，辅助
     protected void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -115,7 +117,7 @@ public class WebMvcConfigurer extends WebMvcConfigurationSupport {
     //添加拦截器
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        //接口签名认证拦截器，该签名认证比较简单，实际项目中可以使用Json Web Token或其他更好的方式替代。
+        //接口签名认证拦截器，该签名认证比较简单，实际项目中可以使用Json Web Token(JWT)或其他更好的方式替代。
         if (!"dev".equals(env)) { //开发环境忽略签名认证
             registry.addInterceptor(new HandlerInterceptorAdapter() {
                 @Override
@@ -157,10 +159,11 @@ public class WebMvcConfigurer extends WebMvcConfigurationSupport {
      */
     private boolean validateSign(HttpServletRequest request) {
         String requestSign = request.getParameter("sign");//获得请求签名，如sign=19e907700db7ad91318424a97c54ed57
+        log.info("请求参数签名 requestSign :【{}】", requestSign);
         if (StringUtils.isEmpty(requestSign)) {
             return false;
         }
-        List<String> keys = new ArrayList<String>(request.getParameterMap().keySet());
+        List<String> keys = new ArrayList<>(request.getParameterMap().keySet());
         keys.remove("sign");//排除sign参数
         Collections.sort(keys);//排序
 
@@ -170,9 +173,10 @@ public class WebMvcConfigurer extends WebMvcConfigurationSupport {
         }
         String linkString = sb.toString();
         linkString = StringUtils.substring(linkString, 0, linkString.length() - 1);//去除最后一个'&'
-
-        String secret = "Potato";//密钥，自己修改
+        log.info("请求参数拼接后的字符串 linkString :【{}】", linkString);
+        String secret = "Syuutou";//密钥，自己修改
         String sign = DigestUtils.md5Hex(linkString + secret);//混合密钥md5
+        log.info("服务端生成的签名(拼接字符串连接秘钥并经过MD5加密) sign :【{}】", sign);
 
         return StringUtils.equals(sign, requestSign);//比较
     }

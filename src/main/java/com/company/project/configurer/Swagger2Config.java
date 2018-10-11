@@ -37,9 +37,9 @@ public class Swagger2Config {
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 //页面标题
-                .title("Spring Boot中使用Swagger2构建RESTful APIs")
+                .title("Spring Boot Api Seed 中使用Swagger2构建RESTful APIs")
                 //描述
-                .description("syuutou boot api  seed")
+                .description("Spring Boot Api Seed")
                 .termsOfServiceUrl("https://www.baidu.com")
                 //创建者
                 .contact(new Contact("syuutou", "http://www.baidu.com", ""))
