@@ -63,15 +63,6 @@ public class WebMvcConfigurer extends WebMvcConfigurationSupport {
         converters.add(converter);
     }
 
-    @Override
-    //取消对swagger的拦截，辅助
-    protected void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("swagger-ui.html")
-                .addResourceLocations("classpath:/META-INF/resources/");
-        registry.addResourceHandler("/webjars/**")
-                .addResourceLocations("classpath:/META-INF/resources/webjars/");
-    }
-
 
     //统一异常处理
     @Override
@@ -114,6 +105,15 @@ public class WebMvcConfigurer extends WebMvcConfigurationSupport {
         //registry.addMapping("/**");
     }
 
+    //    取消对swagger的拦截，辅助
+    @Override
+    protected void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("swagger-ui.html")
+                .addResourceLocations("classpath:/META-INF/resources/");
+        registry.addResourceHandler("/webjars/**")
+                .addResourceLocations("classpath:/META-INF/resources/webjars/");
+    }
+
     //添加拦截器
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -136,7 +136,7 @@ public class WebMvcConfigurer extends WebMvcConfigurationSupport {
                         return false;
                     }
                 }
-            });
+            }).excludePathPatterns("/swagger-ui.html", "/swagger-resources/**");
         }
     }
 
