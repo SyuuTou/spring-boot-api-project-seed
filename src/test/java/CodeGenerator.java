@@ -64,6 +64,7 @@ public class CodeGenerator {
         genModelAndMapper(tableName, modelName);
         genService(tableName, modelName);
         genController(tableName, modelName);
+//        genDemoController(tableName, modelName);
     }
 
 
@@ -195,6 +196,32 @@ public class CodeGenerator {
             System.out.println(modelNameUpperCamel + "Controller.java 生成成功");
         } catch (Exception e) {
             throw new RuntimeException("生成Controller失败", e);
+        }
+
+    }
+    public static void genDemoController(String tableName, String modelName) {
+        try {
+            freemarker.template.Configuration cfg = getConfiguration();
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("date", DATE);
+            data.put("author", AUTHOR);
+            String modelNameUpperCamel = StringUtils.isEmpty(modelName) ? tableNameConvertUpperCamel(tableName) : modelName;
+            data.put("baseRequestMapping", modelNameConvertMappingPath(modelNameUpperCamel));
+            data.put("modelNameUpperCamel", modelNameUpperCamel);
+            data.put("modelNameLowerCamel", CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, modelNameUpperCamel));
+            data.put("basePackage", BASE_PACKAGE);
+
+            File file = new File(PROJECT_PATH + JAVA_PATH + PACKAGE_PATH_CONTROLLER  + "DemoController.java");
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+            //DemoController模板的展示框架
+            cfg.getTemplate("controller-restful-demo.ftl").process(data, new FileWriter(file));
+
+            System.out.println("DemoController.java 生成成功");
+        } catch (Exception e) {
+            throw new RuntimeException("DemoController生成失败", e);
         }
 
     }

@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
@@ -40,6 +41,8 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
  */
 @Configuration
 @Slf4j
+@EnableWebMvc
+//@EnableAsync
 //public class WebMvcConfigurer extends WebMvcConfigurerAdapter {
 public class WebMvcConfigurer extends WebMvcConfigurationSupport {
 
@@ -68,12 +71,14 @@ public class WebMvcConfigurer extends WebMvcConfigurationSupport {
     @Override
     public void configureHandlerExceptionResolvers(List<HandlerExceptionResolver> exceptionResolvers) {
         exceptionResolvers.add(new HandlerExceptionResolver() {
+            @Override
             public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception e) {
                 Result result = new Result();
                 if (e instanceof ServiceException) {//业务失败的异常，如“账号或密码错误”
                     result.setCode(ResultCode.FAIL).setMessage(e.getMessage());
                     logger.info(e.getMessage());
                 } else if (e instanceof NoHandlerFoundException) {
+
                     result.setCode(ResultCode.NOT_FOUND).setMessage("接口 [" + request.getRequestURI() + "] 不存在");
                 } else if (e instanceof ServletException) {
                     result.setCode(ResultCode.FAIL).setMessage(e.getMessage());
@@ -108,10 +113,14 @@ public class WebMvcConfigurer extends WebMvcConfigurationSupport {
     //    取消对swagger的拦截，辅助
     @Override
     protected void addResourceHandlers(ResourceHandlerRegistry registry) {
+        //TODO
         registry.addResourceHandler("swagger-ui.html")
                 .addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**")
                 .addResourceLocations("classpath:/META-INF/resources/webjars/");
+        registry.addResourceHandler("/static/**")
+                .addResourceLocations("classpath:/static/");
+        super.addResourceHandlers(registry);
     }
 
     //添加拦截器
@@ -129,14 +138,14 @@ public class WebMvcConfigurer extends WebMvcConfigurationSupport {
                     } else {
                         logger.warn("签名认证失败，请求接口：{}，请求IP：{}，请求参数：{}",
                                 request.getRequestURI(), getIpAddress(request), JSON.toJSONString(request.getParameterMap()));
-
-                        Result result = new Result();
-                        result.setCode(ResultCode.UNAUTHORIZED).setMessage("签名认证失败");
+                        //签名认证失败
+                        Result<Object> result = Result.builder().code(ResultCode.UNAUTHORIZED.getCode()).message(ResultCode.UNAUTHORIZED.getMessage()).build();
                         responseResult(response, result);
                         return false;
                     }
                 }
-            }).excludePathPatterns("/swagger-ui.html", "/swagger-resources/**");
+                //TODO 取消对于swagger的拦截
+            }).addPathPatterns("/**").excludePathPatterns("/swagger-resources/**", "/webjars/**", "/v2/**", "/swagger-ui.html/**");;
         }
     }
 

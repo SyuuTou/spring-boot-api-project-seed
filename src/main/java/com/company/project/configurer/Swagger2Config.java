@@ -42,7 +42,7 @@ public class Swagger2Config {
                 .description("Spring Boot Api Seed")
                 .termsOfServiceUrl("https://www.baidu.com")
                 //创建者
-                .contact(new Contact("syuutou", "http://www.baidu.com", ""))
+                .contact(new Contact("syuutou", "https://www.baidu.com", ""))
                 //版本号
                 .version("1.0")
                 .build();
