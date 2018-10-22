@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.company.project.core.Result;
 import com.company.project.core.ResultCode;
+import com.company.project.filter.MyHttpServletRequestWrapper;
 import com.company.project.util.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -38,7 +39,7 @@ public class SignIntercepter implements HandlerInterceptor {
 
         //拦截器不需要把流复制一遍，直接读取就可以了，因为已经通过过滤器继续向下传递了
 //        MyHttpServletRequestWrapper myWrapper = new MyHttpServletRequestWrapper(request);
-//        String jsonStr = GetRequestJsonUtils.getRequestJsonString(myWrapper);
+//        String jsonStr = HttpUtil.getRequestJsonString(myWrapper);
 
         String jsonStr = HttpUtil.getRequestJsonString(request);
 

@@ -1,6 +1,7 @@
 package com.company.project.configurer;
 
 
+import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,7 +19,7 @@ import static com.company.project.core.ProjectConstant.CONTROLLER_PACKAGE;
 /**
  * @author xiebq
  */
-@Configuration
+@SpringBootConfiguration
 @EnableSwagger2
 public class Swagger2Config {
     @Bean
@@ -28,8 +29,8 @@ public class Swagger2Config {
                 .apiInfo(apiInfo())
                 .select()
                 //为当前包路径，指的是我们在哪些类中使用swagger2来测试
-                .apis(RequestHandlerSelectors.basePackage(CONTROLLER_PACKAGE))
-//                .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
+//                .apis(RequestHandlerSelectors.basePackage(CONTROLLER_PACKAGE))
+                .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
                 .paths(PathSelectors.any())
                 .build();
     }
