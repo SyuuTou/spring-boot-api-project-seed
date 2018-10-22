@@ -14,6 +14,9 @@ public class ServiceException extends RuntimeException {
      */
     private Object data;
 
+    public ServiceException() {
+    }
+
     public ServiceException(ExceptionEnums exceptionEnums, Object data) {
         this.exceptionEnums = exceptionEnums;
         this.data = data;
@@ -23,8 +26,10 @@ public class ServiceException extends RuntimeException {
         this.exceptionEnums = exceptionEnums;
     }
 
-    public ServiceException() {
+    public ExceptionEnums getExceptionEnums() {
+        return exceptionEnums;
     }
+
 
     public ServiceException(String message) {
         super(message);

@@ -1,6 +1,7 @@
 package com.company.project.core;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.exceptions.TooManyResultsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import tk.mybatis.mapper.entity.Condition;
@@ -13,6 +14,7 @@ import java.util.List;
 /**
  * 基于通用MyBatis Mapper插件的Service接口的实现
  */
+@Slf4j
 public abstract class BaseCRUDService<T> implements Service<T> {
 
     @Autowired
@@ -31,33 +33,39 @@ public abstract class BaseCRUDService<T> implements Service<T> {
             var2.printStackTrace();
         }
     }
+
     @Override
     public void save(T model) {
         mapper.insertSelective(model);
     }
+
     @Override
     public void save(List<T> models) {
         mapper.insertList(models);
     }
+
     @Override
     public void deleteById(Integer id) {
         mapper.deleteByPrimaryKey(id);
     }
+
     @Override
     public void deleteByIds(String ids) {
         mapper.deleteByIds(ids);
     }
+
     @Override
     public void update(T model) {
         mapper.updateByPrimaryKeySelective(model);
     }
+
     @Override
     public T findById(Integer id) {
         return mapper.selectByPrimaryKey(id);
     }
 
     @Override
-    public T findOneByFiledName(String fieldName, Object value) throws TooManyResultsException {
+    public T findOneByFiledName(String fieldName, Object value) throws Exception {
         try {
             T model = modelClass.newInstance();
             Field field = modelClass.getDeclaredField(fieldName);
@@ -65,17 +73,33 @@ public abstract class BaseCRUDService<T> implements Service<T> {
             field.set(model, value);
             return mapper.selectOne(model);
         } catch (ReflectiveOperationException e) {
-            throw new ServiceException(e.getMessage(), e);
+            throw e;
         }
     }
+
+    @Override
+    public List<T> findByFiledName(String fieldName, Object value) throws Exception {
+        try {
+            T model = modelClass.newInstance();
+            Field field = modelClass.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            field.set(model, value);
+            return mapper.select(model);
+        } catch (ReflectiveOperationException e) {
+            throw e;
+        }
+    }
+
     @Override
     public List<T> findByIds(String ids) {
         return mapper.selectByIds(ids);
     }
+
     @Override
     public List<T> findByCondition(Condition condition) {
         return mapper.selectByCondition(condition);
     }
+
     @Override
     public List<T> findAll() {
         return mapper.selectAll();

@@ -23,25 +23,25 @@ public class UserController {
     @PostMapping
     public Result add(@RequestBody User user) {
         userService.save(user);
-        return ResultGenerator.genSuccessResult();
+        return Result.success();
     }
 
     @DeleteMapping("/{id}")
     public Result delete(@PathVariable Integer id) {
         userService.deleteById(id);
-        return ResultGenerator.genSuccessResult();
+        return Result.success();
     }
 
     @PutMapping
     public Result update(@RequestBody User user) {
         userService.update(user);
-        return ResultGenerator.genSuccessResult();
+        return Result.success();
     }
 
     @GetMapping("/{id}")
     public Result detail(@PathVariable Integer id) {
         User user = userService.findById(id);
-        return ResultGenerator.genSuccessResult(user);
+        return Result.success(user);
     }
 
     @GetMapping
@@ -49,6 +49,6 @@ public class UserController {
         PageHelper.startPage(page, size);
         List<User> list = userService.findAll();
         PageInfo pageInfo = new PageInfo(list);
-        return ResultGenerator.genSuccessResult(pageInfo);
+        return Result.success(pageInfo);
     }
 }
