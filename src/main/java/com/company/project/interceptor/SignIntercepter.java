@@ -53,12 +53,11 @@ public class SignIntercepter implements HandlerInterceptor {
             log.warn("签名认证失败，请求接口：{}，请求IP：{}，请求参数：{}",
                     request.getRequestURI(), HttpUtil.getIpAddress(request), JSON.toJSONString(paraMap));
             //签名认证失败
-            Result<Object> result = Result.builder().code(ResultCode.UNAUTHORIZED.getCode()).message(ResultCode.UNAUTHORIZED.getMessage()).build();
+            Result result = new Result(ResultCode.UNAUTHORIZED);
             HttpUtil.responseResult(response, result);
             return false;
         }
     }
-
 
 
     //    private boolean validateSign(HttpServletRequest request) throws IOException {

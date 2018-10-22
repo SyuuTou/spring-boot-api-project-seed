@@ -7,18 +7,24 @@ import lombok.*;
  * 统一API响应结果封装
  * 公共的接口响应
  */
-//@Data
-//@NoArgsConstructor
-//@AllArgsConstructor
-@Builder
-@Setter
-@Getter
+@Data
+@AllArgsConstructor
+//@Builder
+//@Setter
+//@Getter
 public class Result<T> {
     private int code;
     private String message;
     private T data;
 
-    private Result(ResultCode resultCode) {
+    public Result() {
+    }
+
+    /**
+     * 公共返回结果
+     * @param resultCode
+     */
+    public Result(ResultCode resultCode) {
         this.code = resultCode.getCode();
         this.message = resultCode.getMessage();
     }

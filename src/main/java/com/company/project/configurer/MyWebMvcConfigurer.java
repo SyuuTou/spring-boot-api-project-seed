@@ -49,12 +49,11 @@ public class MyWebMvcConfigurer implements WebMvcConfigurer {
     public void configureHandlerExceptionResolvers(List<HandlerExceptionResolver> exceptionResolvers) {
         exceptionResolvers.add(new HandlerExceptionResolver() {
             public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception e) {
-                Result<Object> result = Result.builder().build();
+                Result result = new Result();
 
                 if (e instanceof ServiceException) {//业务失败的异常，如“账号或密码错误”
                     ServiceException serviceEx = (ServiceException) e;
                     log.error(StringUtil.buildExceptionJSON(serviceEx));
-                    log.error(serviceEx.getMessage(),e);
 
                     result = Result.failure(serviceEx);
                 } else if (e instanceof NoHandlerFoundException) { //请求路径不存在
@@ -62,7 +61,7 @@ public class MyWebMvcConfigurer implements WebMvcConfigurer {
                     result.setMessage("接口 [" + request.getRequestURI() + "] 不存在");
 
                 } else if (e instanceof ServletException) { //servlet 异常
-                    result.setCode(ResultCode.FAIL.getCode());
+                    result.setCode(ResultCode.SERVLET_FAIL.getCode());
                     result.setMessage(e.getMessage());
                 } else {
                     result.setCode(ResultCode.INTERNAL_SERVER_ERROR.getCode());
