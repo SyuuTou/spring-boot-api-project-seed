@@ -5,12 +5,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 /**
 * Created by ${author} on ${date}.
 */
 @RestController
 @RequestMapping("demo")
+@Slf4j
 public class DemoController {
 
     /**

@@ -1,5 +1,6 @@
 package com.company.project.configurer;
 
+import java.lang.invoke.MethodHandle;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
@@ -38,8 +39,9 @@ import org.springframework.web.servlet.config.annotation.*;
 @Slf4j
 public class MyWebMvcConfigurer implements WebMvcConfigurer {
 
+    //当前激活的配置文件
     @Value("${spring.profiles.active}")
-    private String env;//当前激活的配置文件
+    private String env;
 
     @Resource
     private SignIntercepter signIntercepter;
@@ -49,13 +51,14 @@ public class MyWebMvcConfigurer implements WebMvcConfigurer {
     public void configureHandlerExceptionResolvers(List<HandlerExceptionResolver> exceptionResolvers) {
         exceptionResolvers.add(new HandlerExceptionResolver() {
             public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception e) {
+
                 Result result = new Result();
 
                 if (e instanceof ServiceException) {//业务失败的异常，如“账号或密码错误”
                     ServiceException serviceEx = (ServiceException) e;
-                    log.error(StringUtil.buildExceptionJSON(serviceEx));
-
                     result = Result.failure(serviceEx);
+
+                    log.error(StringUtil.buildExceptionJSON(serviceEx));
                 } else if (e instanceof NoHandlerFoundException) { //请求路径不存在
                     result.setCode(ResultCode.NOT_FOUND.getCode());
                     result.setMessage("接口 [" + request.getRequestURI() + "] 不存在");
@@ -63,6 +66,7 @@ public class MyWebMvcConfigurer implements WebMvcConfigurer {
                 } else if (e instanceof ServletException) { //servlet 异常
                     result.setCode(ResultCode.SERVLET_FAIL.getCode());
                     result.setMessage(e.getMessage());
+
                 } else {
                     result.setCode(ResultCode.INTERNAL_SERVER_ERROR.getCode());
                     result.setMessage("接口 [" + request.getRequestURI() + "] 内部错误，请联系管理员");
@@ -90,21 +94,21 @@ public class MyWebMvcConfigurer implements WebMvcConfigurer {
     }
 
     //解决跨域问题
+    //TODO 拦截器和addCorsMappings生效顺序的问题???
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        //registry.addMapping("/**");
+        registry.addMapping("/**");
     }
 
-
+    //拦截器的添加顺序就是执行顺序
     @Override
-    //TODO 拦截器的流无法向下传递
     public void addInterceptors(InterceptorRegistry registry) {
         //接口签名认证拦截器，该签名认证比较简单，实际项目中可以使用Json Web Token(JWT)或其他更好的方式替代。
-//        if (!"dev".equals(env)) { //开发环境忽略签名认证
-        if ("dev".equals(env)) { //开发环境忽略签名认证
+        if (!"dev".equals(env)) { //开发环境忽略签名认证
+//        if ("dev".equals(env)) { //开发环境忽略签名认证
             registry.addInterceptor(signIntercepter).
                     //TODO 具体的拦截路径
-                            addPathPatterns("/user/msg/send", "/building/warship/purchase").
+                            addPathPatterns("/user/**").
 //                    addPathPatterns("/**").
                     //取消对swagger的拦截
                             excludePathPatterns("/swagger-resources/**", "/webjars/**", "/v2/**", "/swagger-ui.html/**");

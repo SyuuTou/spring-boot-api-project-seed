@@ -3,6 +3,7 @@ package com.company.project.util;
 import com.alibaba.fastjson.JSON;
 import com.company.project.core.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.util.Map;
 
 /**
  * http请求的操作工具类
@@ -28,13 +30,18 @@ public class HttpUtil {
     public static String getRequestJsonString(HttpServletRequest request)
             throws IOException {
         String submitMehtod = request.getMethod();
+        String result = null;
         // GET  DELETE
         if (submitMehtod.equals("GET") || submitMehtod.equals("DELETE")) {
-            return new String(request.getQueryString().getBytes("iso-8859-1"), "utf-8").replaceAll("%22", "\"");
+            //规避pathVariable的情况
+            if (request.getQueryString() != null) {
+                result = new String(request.getQueryString().getBytes("iso-8859-1"), "utf-8").replaceAll("%22", "\"");
+            }
             // POST
         } else {
-            return getRequestPostStr(request);
+            result = getRequestPostStr(request);
         }
+        return result;
     }
 
     /**
@@ -85,8 +92,9 @@ public class HttpUtil {
         }
         return new String(buffer, charEncoding);
     }
+
     /**
-     * 获取请求Body 
+     * 获取请求Body
      *
      * @param request
      * @return
@@ -125,6 +133,7 @@ public class HttpUtil {
 
     /**
      * 获取ip地址
+     *
      * @param request
      * @return
      */
@@ -155,6 +164,7 @@ public class HttpUtil {
 
     /**
      * 返回相应结果
+     *
      * @param response
      * @param result
      */

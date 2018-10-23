@@ -10,15 +10,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.lang.invoke.MethodHandle;
+import java.lang.reflect.Method;
+import java.util.*;
 
 
 @Slf4j
@@ -36,6 +39,25 @@ public class SignIntercepter implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        HandlerMethod methodHandle = (HandlerMethod) handler;
+        Object bean = methodHandle.getBean();
+        Class<?> beanType = methodHandle.getBeanType();
+        Method method = methodHandle.getMethod();
+        MethodParameter[] methodParameters = methodHandle.getMethodParameters();
+        for (MethodParameter e:methodParameters
+             ) {
+            System.err.println(e.getParameterName());
+        }
+
+        System.err.println(bean);
+        System.err.println(beanType);
+        System.err.println(method);
+        System.err.println(Arrays.toString(methodParameters));
+
+
+        //拦截器获取pathVariable中的数据
+//        Map pathVars = (Map) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
+//        log.warn(pathVars.toString());
 
         //拦截器不需要把流复制一遍，直接读取就可以了，因为已经通过过滤器继续向下传递了
 //        MyHttpServletRequestWrapper myWrapper = new MyHttpServletRequestWrapper(request);
@@ -44,7 +66,13 @@ public class SignIntercepter implements HandlerInterceptor {
         String jsonStr = HttpUtil.getRequestJsonString(request);
 
         JSONObject paraMap = JSONObject.parseObject(jsonStr);
-        log.warn("请求体;【{}】", paraMap);
+        //日志打印
+        if (paraMap != null) {
+            paraMap.forEach((k, v) ->
+            {
+                log.info("key:【{}】: value:【{}】", k, v);
+            });
+        }
 
         //验证签名
         boolean pass = validateSign(paraMap);
@@ -63,11 +91,10 @@ public class SignIntercepter implements HandlerInterceptor {
 
     //    private boolean validateSign(HttpServletRequest request) throws IOException {
     private boolean validateSign(JSONObject parameterMap) throws IOException {
-        parameterMap.forEach((k, v) ->
-        {
-            log.info("【{}】: -->【{}】", k, v);
-        });
-
+        if (parameterMap == null) {
+            return false;
+        }
+        //取得签名
         String requestSign = String.valueOf(parameterMap.get("sign"));
         if (StringUtils.isEmpty(requestSign)) {
             return false;
