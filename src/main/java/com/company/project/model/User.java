@@ -103,4 +103,20 @@ public class User {
     public void setRegisterDate(Date registerDate) {
         this.registerDate = registerDate;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getClass().getSimpleName());
+        sb.append(" [");
+        sb.append("Hash = ").append(hashCode());
+        sb.append(", id=").append(id);
+        sb.append(", username=").append(username);
+        sb.append(", password=").append(password);
+        sb.append(", nickName=").append(nickName);
+        sb.append(", sex=").append(sex);
+        sb.append(", registerDate=").append(registerDate);
+        sb.append("]");
+        return sb.toString();
+    }
 }

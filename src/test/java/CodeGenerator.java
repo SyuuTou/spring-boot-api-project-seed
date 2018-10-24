@@ -81,11 +81,15 @@ public class CodeGenerator {
         jdbcConnectionConfiguration.setPassword(JDBC_PASSWORD);
         jdbcConnectionConfiguration.setDriverClass(JDBC_DIVER_CLASS_NAME);
         context.setJdbcConnectionConfiguration(jdbcConnectionConfiguration);
-
-        PluginConfiguration pluginConfiguration = new PluginConfiguration();
-        pluginConfiguration.setConfigurationType("tk.mybatis.mapper.generator.MapperPlugin");
-        pluginConfiguration.addProperty("mappers", MAPPER_INTERFACE_REFERENCE);
-        context.addPluginConfiguration(pluginConfiguration);
+        //添加对通用Mapper的主持
+        PluginConfiguration pluginConfiguration1 = new PluginConfiguration();
+        pluginConfiguration1.setConfigurationType("tk.mybatis.mapper.generator.MapperPlugin");
+        pluginConfiguration1.addProperty("mappers", MAPPER_INTERFACE_REFERENCE);
+        context.addPluginConfiguration(pluginConfiguration1);
+        //添加对生成bean的toString支持
+        PluginConfiguration pluginConfiguration2 = new PluginConfiguration();
+        pluginConfiguration2.setConfigurationType("org.mybatis.generator.plugins.ToStringPlugin");
+        context.addPluginConfiguration(pluginConfiguration2);
 
         JavaModelGeneratorConfiguration javaModelGeneratorConfiguration = new JavaModelGeneratorConfiguration();
         javaModelGeneratorConfiguration.setTargetProject(PROJECT_PATH + JAVA_PATH);
@@ -127,10 +131,11 @@ public class CodeGenerator {
         } catch (Exception e) {
             throw new RuntimeException("生成Model和Mapper失败", e);
         }
-
+        //使用 XMLMAPPER 方式
 //        if (generator.getGeneratedJavaFiles().isEmpty() || generator.getGeneratedXmlFiles().isEmpty()) {
 //            throw new RuntimeException("生成Model和Mapper失败：" + warnings);
 //        }
+        //使用 ANNOTATEDMAPPER 方式
         if (generator.getGeneratedJavaFiles().isEmpty()) {
             throw new RuntimeException("生成Model和Mapper失败：" + warnings);
         }

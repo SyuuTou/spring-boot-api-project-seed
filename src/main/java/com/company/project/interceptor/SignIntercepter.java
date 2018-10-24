@@ -39,6 +39,7 @@ public class SignIntercepter implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
         HandlerMethod methodHandle = (HandlerMethod) handler;
         Object bean = methodHandle.getBean();
         Class<?> beanType = methodHandle.getBeanType();
@@ -48,7 +49,6 @@ public class SignIntercepter implements HandlerInterceptor {
              ) {
             System.err.println(e.getParameterName());
         }
-
         System.err.println(bean);
         System.err.println(beanType);
         System.err.println(method);
