@@ -20,6 +20,10 @@ public class User {
     @Column(name = "register_date")
     private Date registerDate;
 
+    public User(String nickName) {
+        this.nickName = nickName;
+    }
+
     /**
      * @return id
      */

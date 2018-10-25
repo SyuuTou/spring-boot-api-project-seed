@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
 import com.company.project.model.User;
+import com.company.project.service.RedisService;
 import com.company.project.service.UserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -13,7 +14,11 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -26,10 +31,7 @@ public class UserController {
     @Resource
     private UserService userService;
     @Autowired
-    RedisTemplate redisTemplate;
-
-    @Autowired
-    StringRedisTemplate stringRedisTemplate;
+    RedisService redisService;
 
     @PostMapping
     public Result add(@RequestBody User user) {
@@ -61,11 +63,16 @@ public class UserController {
         PageHelper.startPage(page, size);
         List<User> list = userService.findAll();
         PageInfo pageInfo = new PageInfo(list);
-        // 具体使用
-        redisTemplate.opsForList().leftPush("user:list", JSON.toJSONString(list));
-        stringRedisTemplate.opsForValue().set("user:name", "张三");
-        stringRedisTemplate.opsForValue().set("zhou", "dong");
+
 
         return Result.success(pageInfo);
+    }
+
+    @GetMapping("redis")
+    public Result redis() {
+
+
+
+        return null;
     }
 }
