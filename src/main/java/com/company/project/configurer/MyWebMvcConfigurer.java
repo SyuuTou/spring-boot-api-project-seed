@@ -1,25 +1,18 @@
 package com.company.project.configurer;
 
-import java.lang.invoke.MethodHandle;
-import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.annotation.Resource;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
+import com.company.project.security.authorization.interceptor.AuthorizationInterceptor;
+import com.company.project.security.authorization.resolvers.CurrentUserMethodArgumentResolver;
 import com.company.project.core.Result;
 import com.company.project.core.ResultCode;
 import com.company.project.core.ServiceException;
-import com.company.project.interceptor.SignIntercepter;
-import com.company.project.util.HttpUtil;
+import com.company.project.security.sign.interceptor.SignIntercepter;
+import com.company.project.util.MyHttpUtil;
 import com.company.project.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
@@ -35,6 +28,13 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.config.annotation.*;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.List;
+
 @Configuration
 @Slf4j
 public class MyWebMvcConfigurer implements WebMvcConfigurer {
@@ -43,8 +43,14 @@ public class MyWebMvcConfigurer implements WebMvcConfigurer {
     @Value("${spring.profiles.active}")
     private String env;
 
-    @Resource
+    @Autowired
     private SignIntercepter signIntercepter;
+
+    @Autowired
+    private AuthorizationInterceptor authorizationInterceptor;
+
+    @Autowired
+    private CurrentUserMethodArgumentResolver currentUserMethodArgumentResolver;
 
     //统一异常处理
     @Override
@@ -86,34 +92,30 @@ public class MyWebMvcConfigurer implements WebMvcConfigurer {
                     log.error(message, e);
                 }
                 //响应流输出返回结果
-                HttpUtil.responseResult(response, result);
+                MyHttpUtil.responseResult(response, result);
                 return new ModelAndView();
             }
 
         });
     }
 
-    //解决跨域问题
-    //TODO 拦截器和addCorsMappings生效顺序的问题???
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**");
-    }
-
     //拦截器的添加顺序就是执行顺序
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        //接口签名认证拦截器，该签名认证比较简单，实际项目中可以使用Json Web Token(JWT)或其他更好的方式替代。
-        if (!"dev".equals(env)) { //开发环境忽略签名认证
-//        if ("dev".equals(env)) { //开发环境忽略签名认证
-            registry.addInterceptor(signIntercepter).
-                    //TODO 具体的拦截路径
-                            addPathPatterns("/user/**").
-//                    addPathPatterns("/**").
-                    //取消对swagger的拦截
-                            excludePathPatterns("/swagger-resources/**", "/webjars/**", "/v2/**", "/swagger-ui.html/**");
 
-        }
+        //接口签名认证拦截器，该签名认证比较简单，实际项目中可以使用Json Web Token(JWT)或其他更好的方式替代。
+
+//        if (!"dev".equals(env)) { //开发环境忽略签名认证
+//            registry.addInterceptor(signIntercepter)
+//                    //取消对swagger的拦截
+//                    .excludePathPatterns("/swagger-resources/**", "/webjars/**", "/v2/**", "/swagger-ui.html/**");
+//        }
+        registry.addInterceptor(authorizationInterceptor)
+                //取消对swagger的拦截
+                .excludePathPatterns("/swagger-resources/**", "/webjars/**", "/v2/**", "/swagger-ui.html/**");
+        registry.addInterceptor(signIntercepter)
+                //取消对swagger的拦截
+                .excludePathPatterns("/swagger-resources/**", "/webjars/**", "/v2/**", "/swagger-ui.html/**");
     }
 
     @Override
@@ -125,6 +127,7 @@ public class MyWebMvcConfigurer implements WebMvcConfigurer {
                 .addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
 
+    @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         FastJsonHttpMessageConverter converter = new FastJsonHttpMessageConverter();
         FastJsonConfig config = new FastJsonConfig();
@@ -138,6 +141,20 @@ public class MyWebMvcConfigurer implements WebMvcConfigurer {
         converter.setSupportedMediaTypes(Arrays.asList(MediaType.APPLICATION_JSON_UTF8));
         converters.add(converter);
     }
+
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+        argumentResolvers.add(currentUserMethodArgumentResolver);
+    }
+
+
+    //解决跨域问题
+    //TODO 拦截器和addCorsMappings生效顺序的问题???
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**");
+    }
+
 
     @Override
     public void addReturnValueHandlers(List<HandlerMethodReturnValueHandler> arg0) {
@@ -211,10 +228,6 @@ public class MyWebMvcConfigurer implements WebMvcConfigurer {
 
     }
 
-    @Override
-    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-        // TODO Auto-generated method stub
 
-    }
 
 }

@@ -1,8 +1,10 @@
 package com.company.project.model;
 
+import lombok.NoArgsConstructor;
+
 import java.util.Date;
 import javax.persistence.*;
-
+@NoArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

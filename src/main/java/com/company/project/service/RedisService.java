@@ -5,6 +5,7 @@ import org.springframework.data.redis.core.*;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -314,6 +315,10 @@ public class RedisService {
     public Object popSetValue(String key) {
         return setOperations.pop(key);
     }
+
+    //---------------------------------------------------------------------
+    // bitmap -> Redis setbit() 操作
+    //---------------------------------------------------------------------
 
 }
 

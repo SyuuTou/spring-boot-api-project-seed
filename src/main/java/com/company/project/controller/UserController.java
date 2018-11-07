@@ -1,23 +1,18 @@
 package com.company.project.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.company.project.core.Result;
-import com.company.project.core.ResultGenerator;
 import com.company.project.model.User;
 import com.company.project.service.RedisService;
 import com.company.project.service.UserService;
+import com.company.project.security.sign.annotation.Sign;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,7 +28,8 @@ public class UserController {
     @Autowired
     RedisService redisService;
 
-    @PostMapping
+    @PostMapping("qwer")
+    @Sign
     public Result add(@RequestBody User user) {
         System.err.println(user);
         userService.save(user);
@@ -41,14 +37,17 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public Result delete(@PathVariable Integer id) {
-        userService.deleteById(id);
+    public Result delete(@PathVariable Integer id, HttpServletRequest request) {
+
+//        userService.deleteById(id);
         return Result.success();
     }
 
     @PutMapping
+    @Sign
     public Result update(@RequestBody User user) {
-        userService.update(user);
+        System.err.println(user);
+//        userService.update(user);
         return Result.success();
     }
 
@@ -70,8 +69,11 @@ public class UserController {
 
     @GetMapping("redis")
     public Result redis() {
-
-
+        redisService.addValue("zhou", "dong");
+        Object zhou = redisService.getValue("zhou");
+        Object jiao = redisService.getValue("jiao");
+        System.err.println(zhou);
+        System.err.println(jiao);
 
         return null;
     }

@@ -3,7 +3,6 @@ package com.company.project.util;
 import com.alibaba.fastjson.JSON;
 import com.company.project.core.Result;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -13,13 +12,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.util.Map;
 
 /**
  * http请求的操作工具类
  */
 @Slf4j
-public class HttpUtil {
+public class MyHttpUtil {
     /*** 
      * 获取 request 中 json 字符串的内容 
      *
@@ -158,12 +156,11 @@ public class HttpUtil {
         if (ip != null && ip.indexOf(",") != -1) {
             ip = ip.substring(0, ip.indexOf(",")).trim();
         }
-
         return ip;
     }
 
     /**
-     * 返回相应结果
+     * 返回响应结果
      *
      * @param response
      * @param result
@@ -178,4 +175,4 @@ public class HttpUtil {
             log.error(ex.getMessage());
         }
     }
-}  
+}
